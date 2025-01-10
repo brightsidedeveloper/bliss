@@ -1,0 +1,29 @@
+{
+  "operations": [
+    {
+      "name": "Aha",
+      "endpoint": "/api/v1/test",
+      "method": "Get",
+      "queryParams": {
+        "example": "string"
+      },
+      "query": "SELECT {name}$, {email}$ FROM public.profile p WHERE p.id = ${userID} AND p.name = ${name}",
+      "response": {
+        "name": "string",
+        "email": "string"
+      }
+    },
+    {
+      "name": "Aha2",
+      "endpoint": "/api/v2/test",
+      "method": "Get",
+      "queryParams": {
+        "example": "string"
+      },
+      "handler": "CheckCoolStatus(${example})",
+      "response": {
+        "cool": "boolean"
+      }
+    }
+  ]
+}
