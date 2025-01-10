@@ -3,39 +3,33 @@ package handler
 import (
 	"context"
 	"net/http"
-	"encoding/json"
 	"time"
 )
 
-	
 func (h *Handler) GetAha(w http.ResponseWriter, r *http.Request) {
-		
+
 	type AhaQuery struct {
-		Example string `json:"example"`
+		Name string `json:"name"`
 	}
 
-	var queryParams AhaQuery
-			
-	err := json.NewDecoder(r.Body).Decode(&queryParams)
-	if err != nil {
-		h.JSON.ValidationError(w, "Bad request")
-		return
+	queryParams := AhaQuery{
+		Name: r.URL.Query().Get("name"),
 	}
-				
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := "SELECT name, email FROM public.profile p WHERE p.id = $1 AND p.name = $2"
+	query := "SELECT name, msg FROM public.profile p WHERE p.name = $1"
 
 	type AhaRow struct {
-		Email string `json:"email"`
 		Name string `json:"name"`
+		Msg  string `json:"msg"`
 	}
-	
+
 	res := AhaRow{}
-	err = h.DB.QueryRowContext(ctx, query, queryParams.Example).Scan(&res.Name, &res.Email)
+	err := h.DB.QueryRowContext(ctx, query, queryParams.Name).Scan(&res.Name, &res.Msg)
 	if err != nil {
-		h.JSON.Error(w, http.StatusInternalServerError, "Failed to query user")
+		h.JSON.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 

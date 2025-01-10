@@ -99,7 +99,6 @@ func generateHandlerFilesContent(ops AhaJSON) (map[string]string, error) {
 import (
 	"context"
 	"net/http"
-	"encoding/json"
 	"time"
 )
 
@@ -127,13 +126,14 @@ func (h *Handler) ` + op.Method + op.Name + `(w http.ResponseWriter, r *http.Req
 `
 
 			goCode += `
-	var queryParams ` + op.Name + `Query
-			
-	err := json.NewDecoder(r.Body).Decode(&queryParams)
-	if err != nil {
-		h.JSON.ValidationError(w, "Bad request")
-		return
+	queryParams := ` + op.Name + `Query{`
+			for k := range op.QueryParams {
+				goCode += `
+		` + capitalize(k) + `: r.URL.Query().Get("` + k + `"),`
+			}
+			goCode += `
 	}
+	
 				`
 
 		}
@@ -170,7 +170,7 @@ func (h *Handler) ` + op.Method + op.Name + `(w http.ResponseWriter, r *http.Req
 
 			goCode += `
 	res := ` + op.Name + `Row{}
-	err = h.DB.QueryRowContext(ctx, query, ` + strings.Join(inserts, ", ") + `).Scan(` + strings.Join(scan, ", ") + `)
+	err := h.DB.QueryRowContext(ctx, query, ` + strings.Join(inserts, ", ") + `).Scan(` + strings.Join(scan, ", ") + `)
 	if err != nil {
 		h.JSON.Error(w, http.StatusInternalServerError, "Failed to query user")
 		return
