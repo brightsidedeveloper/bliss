@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"app/genesis/injection"
+	"app/genesis/types"
 	"context"
 	"net/http"
 	"time"
@@ -8,28 +10,34 @@ import (
 
 func (h *Handler) GetAha(w http.ResponseWriter, r *http.Request) {
 
-	type AhaQuery struct {
-		Name string `json:"name"`
-	}
-
-	queryParams := AhaQuery{
-		Name: r.URL.Query().Get("name"),
+	queryParams := types.AhaQuery{
+		Example: r.URL.Query().Get("example"),
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := "SELECT name, msg FROM public.profile p WHERE p.name = $1"
+	query := "SELECT name, email FROM public.profile p WHERE p.id = $1 AND p.name = $2"
 
-	type AhaRow struct {
-		Name string `json:"name"`
-		Msg  string `json:"msg"`
+	res := types.AhaRow{}
+	err := h.DB.QueryRowContext(ctx, query, queryParams.Example).Scan(&res.Email, &res.Name)
+	if err != nil {
+		h.JSON.Error(w, http.StatusInternalServerError, "Failed to query user")
+		return
 	}
 
-	res := AhaRow{}
-	err := h.DB.QueryRowContext(ctx, query, queryParams.Name).Scan(&res.Name, &res.Msg)
+	h.JSON.Success(w, res)
+}
+
+func (h *Handler) GetAha2(w http.ResponseWriter, r *http.Request) {
+
+	queryParams := types.Aha2Query{
+		Example: r.URL.Query().Get("example"),
+	}
+
+	res, err := injection.CheckCoolStatus(w, r, queryParams)
 	if err != nil {
-		h.JSON.Error(w, http.StatusInternalServerError, err.Error())
+		h.JSON.Error(w, http.StatusInternalServerError, "Failed to query user")
 		return
 	}
 

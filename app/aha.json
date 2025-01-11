@@ -5,12 +5,24 @@
       "endpoint": "/api/v1/test",
       "method": "Get",
       "queryParams": {
-        "name": "string"
+        "example": "string"
       },
-      "query": "SELECT {name}$, {msg}$ FROM public.profile p WHERE p.name = ${name}",
+      "query": "SELECT {name}$, {email}$ FROM public.profile p WHERE p.id = ${userID} AND p.name = ${name}",
       "response": {
         "name": "string",
-        "msg": "string"
+        "email": "string"
+      }
+    },
+    {
+      "name": "Aha2",
+      "endpoint": "/api/v1/testie",
+      "method": "Get",
+      "queryParams": {
+        "example": "string"
+      },
+      "handler": "CheckCoolStatus(w, r, queryParams)",
+      "response": {
+        "cool": "bool"
       }
     }
   ]
