@@ -7,8 +7,8 @@ type AhaRow struct {
 }
 	
 type AhaQuery struct {
-	Anything string `json:"anything"`
 	Example string `json:"example"`
+	Anything string `json:"anything"`
 }
 
 	

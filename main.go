@@ -1,23 +1,24 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"master-gen/generator"
-	"master-gen/parser"
 )
 
 func main() {
-	bliss, err := parser.ParseBliss("./app/aha.json")
+
+	err := (&generator.Generator{
+		BlissPath:   "./api.bliss",
+		GenesisPath: "./app/genesis",
+		ApiPaths: []string{
+			"./clients/web/src/api",
+		},
+	}).Generate()
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	g := &generator.Generator{
-		GenesisPath: "./app/genesis",
-		Bliss:       bliss,
-	}
-
-	if err := g.Generate(); err != nil {
-		log.Fatal(err)
-	}
+	fmt.Println("Done")
 }

@@ -1,23 +1,27 @@
 package generator
 
-import (
-	"master-gen/parser"
-)
+import "master-gen/parser"
 
 type Generator struct {
+	BlissPath   string
 	GenesisPath string
-	Bliss       parser.Bliss
+	ApiPaths    []string
 }
 
 func (g *Generator) Generate() error {
+	bliss, err := parser.GetBliss(g.BlissPath)
+	if err != nil {
+		return err
+	}
+
 	// Go
-	if err := genGoTypes(g.Bliss, g.GenesisPath); err != nil {
+	if err := genGoTypes(bliss, g.GenesisPath); err != nil {
 		return err
 	}
-	if err := genHandlers(g.Bliss, g.GenesisPath); err != nil {
+	if err := genHandlers(bliss, g.GenesisPath); err != nil {
 		return err
 	}
-	if err := genMountRoutes(g.Bliss, g.GenesisPath); err != nil {
+	if err := genMountRoutes(bliss, g.GenesisPath); err != nil {
 		return err
 	}
 	// TS

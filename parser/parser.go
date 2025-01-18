@@ -25,7 +25,7 @@ type Operation struct {
 	Res         Response    `json:"response"`
 }
 
-func ParseBliss(path string) (Bliss, error) {
+func GetBliss(path string) (Bliss, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return Bliss{}, err
