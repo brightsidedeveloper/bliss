@@ -6,7 +6,7 @@ import (
 	"master-gen/writer"
 )
 
-func TypesFileContent(ops parser.AhaJSON) error {
+func genGoTypes(ops parser.AhaJSON, path string) error {
 
 	goCode := `package types
 
@@ -40,7 +40,7 @@ type ` + op.Name + `Query struct {`
 		}
 	}
 
-	writer.WriteFile("./app/genesis/types/types.go", goCode)
+	writer.WriteFile(path+"/types/types.go", goCode)
 
 	return nil
 }

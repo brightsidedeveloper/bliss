@@ -6,7 +6,7 @@ import (
 	"master-gen/writer"
 )
 
-func MountRoutesFileContent(ops parser.AhaJSON) error {
+func genMountRoutes(ops parser.AhaJSON, path string) error {
 
 	operationNames := make(map[string]int)
 	for _, op := range ops.Operations {
@@ -48,7 +48,7 @@ func MountRoutes(r *chi.Mux, h *handler.Handler) {
 }
 	`
 
-	writer.WriteFile("./app/genesis/routes/routes.go", goCode)
+	writer.WriteFile(path+"/routes/routes.go", goCode)
 
 	return nil
 }

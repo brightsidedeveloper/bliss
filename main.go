@@ -12,15 +12,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := generator.TypesFileContent(aha); err != nil {
-		log.Fatal(err)
+	g := &generator.Generator{
+		GenesisPath: "./app/genesis",
+		Bliss:       aha,
 	}
 
-	if err := generator.Handlers(aha); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := generator.MountRoutesFileContent(aha); err != nil {
+	if err := g.Generate(); err != nil {
 		log.Fatal(err)
 	}
 

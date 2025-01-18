@@ -57,7 +57,7 @@ import (
 	return ""
 }
 
-func Handlers(ops parser.AhaJSON) error {
+func genHandlers(ops parser.AhaJSON, path string) error {
 	handlers := make(map[string]string)
 
 	for _, op := range ops.Operations {
@@ -80,7 +80,7 @@ func Handlers(ops parser.AhaJSON) error {
 	}
 
 	for namespace, code := range handlers {
-		filePath := fmt.Sprintf("./app/genesis/handler/%s.go", namespace)
+		filePath := fmt.Sprintf(path+"/handler/%s.go", namespace)
 		err := writer.WriteFile(filePath, code)
 		if err != nil {
 			return fmt.Errorf("failed to write file %s: %w", filePath, err)
