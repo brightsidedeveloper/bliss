@@ -1,7 +1,13 @@
 package generator
 
-import "master-gen/internal/clone"
+import (
+	"master-gen/internal/clone"
+	"os"
+)
 
 func createServerIfNotExists(path string) error {
-	return clone.Repo(path, "https://github.com/brightsidedeveloper/bsd-solar-system.git")
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return clone.Repo(path, "https://github.com/brightsidedeveloper/bsd-solar-system.git")
+	}
+	return nil
 }

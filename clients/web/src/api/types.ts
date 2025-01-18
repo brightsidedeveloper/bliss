@@ -1,21 +1,14 @@
+
 export interface AhaQuery {
-  example: string
-  anything: string
+	example: string;
+	anything: string;
 }
 
 export interface AhaRes {
-  name: string
-  email: string
+	email: string;
+	name: string;
 }
-
-export interface SuperTestQuery {
-  example: string
-}
-
-export interface SuperTestRes {
-  cool: boolean
-}
-
+			
 export interface Aha3Body {
-  size: string
+	size: string;
 }

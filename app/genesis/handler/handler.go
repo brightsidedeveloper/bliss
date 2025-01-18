@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"app/genesis/util"
 	"database/sql"
+	"solar-system/genesis/util"
 )
 
 type Handler struct {

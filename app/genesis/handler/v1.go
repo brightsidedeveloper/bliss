@@ -4,10 +4,9 @@ package handler
 import (
 	"context"
 	"net/http"
-	"app/genesis/types"
+	"solar-system/genesis/types"
 	"encoding/json"
 	"time"
-	"app/genesis/injection"
 )
 
 func (h *Handler) GetAha(w http.ResponseWriter, r *http.Request) {
@@ -30,21 +29,6 @@ func (h *Handler) GetAha(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.JSON.Success(w, res)
-}	
-
-func (h *Handler) GetSuperTest(w http.ResponseWriter, r *http.Request) {
-	queryParams := types.SuperTestQuery{
-		Example: r.URL.Query().Get("example"),
-	}
-	
-				
-	res, err := injection.CheckCoolStatus(w, r, queryParams)
-	if err != nil {
-		h.JSON.Error(w, http.StatusInternalServerError, "Failed to query user")
-		return
-	}
-	
 	h.JSON.Success(w, res)
 }	
 

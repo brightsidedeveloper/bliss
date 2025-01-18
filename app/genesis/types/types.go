@@ -12,15 +12,6 @@ type AhaQuery struct {
 }
 
 	
-type SuperTestRes struct {
-	Cool bool `json:"cool"`
-}
-	
-type SuperTestQuery struct {
-	Example string `json:"example"`
-}
-
-	
 type Aha3Row struct {
 }
 	

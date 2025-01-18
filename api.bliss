@@ -16,18 +16,6 @@
       }
     },
     {
-      "name": "SuperTest",
-      "endpoint": "/api/v1/testie",
-      "method": "Get",
-      "queryParams": {
-        "example": "string"
-      },
-      "handler": "CheckCoolStatus(w, r, queryParams)",
-      "response": {
-        "cool": "bool"
-      }
-    },
-    {
       "name": "Aha3",
       "endpoint": "/api/v1/testie2",
       "method": "Delete",

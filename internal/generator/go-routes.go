@@ -32,7 +32,7 @@ func genMountRoutes(ops parser.Bliss, path string) error {
 	goCode := `package routes
 	
 	import (
-	"app/genesis/handler"
+	"solar-system/genesis/handler"
 
 	"github.com/go-chi/chi/v5"
 )

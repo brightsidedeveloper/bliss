@@ -1,4 +1,4 @@
-module app
+module solar-system
 
 go 1.23.3
 

@@ -1,7 +1,7 @@
 package routes
 	
 	import (
-	"app/genesis/handler"
+	"solar-system/genesis/handler"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -9,7 +9,6 @@ package routes
 func MountRoutes(r *chi.Mux, h *handler.Handler) {
 	
 		r.Get("/api/v1/test", h.GetAha)
-		r.Get("/api/v1/testie", h.GetSuperTest)
 		r.Delete("/api/v1/testie2", h.DeleteAha3)
 
 }

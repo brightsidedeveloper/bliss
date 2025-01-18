@@ -1,16 +1,16 @@
 package main
 
 import (
-	"app/genesis/db"
-	"app/genesis/handler"
-	"app/genesis/routes"
-	"app/genesis/util"
 	"context"
 	"database/sql"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"solar-system/genesis/db"
+	"solar-system/genesis/handler"
+	"solar-system/genesis/routes"
+	"solar-system/genesis/util"
 	"syscall"
 	"time"
 
