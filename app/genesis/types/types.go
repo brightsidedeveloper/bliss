@@ -8,15 +8,25 @@ type AhaRow struct {
 	
 type AhaQuery struct {
 	Example string `json:"example"`
+	Anything string `json:"anything"`
 }
 
 	
-type Aha2Res struct {
+type SuperTestRes struct {
 	Cool bool `json:"cool"`
 }
 	
-type Aha2Query struct {
+type SuperTestQuery struct {
 	Example string `json:"example"`
+}
+
+	
+type Aha3Row struct {
+	Count int `json:"count"`
+}
+	
+type Aha3Query struct {
+	Size string `json:"size"`
 }
 
 	

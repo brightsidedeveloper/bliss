@@ -9,7 +9,8 @@ package routes
 func MountRoutes(r *chi.Mux, h *handler.Handler) {
 	
 		r.Get("/api/v1/test", h.GetAha)
-		r.Get("/api/v1/testie", h.GetAha2)
+		r.Get("/api/v1/testie", h.GetSuperTest)
+		r.Get("/api/v1/testie2", h.GetAha3)
 
 }
 	

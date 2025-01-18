@@ -5,24 +5,40 @@
       "endpoint": "/api/v1/test",
       "method": "Get",
       "queryParams": {
-        "example": "string"
+        "example": "string",
+        "anything": "string"
       },
       "query": "SELECT {name}$, {email}$ FROM public.profile p WHERE p.id = ${userID} AND p.name = ${name}",
+      "responseType": "row",
       "response": {
         "name": "string",
         "email": "string"
       }
     },
     {
-      "name": "Aha2",
+      "name": "SuperTest",
       "endpoint": "/api/v1/testie",
       "method": "Get",
       "queryParams": {
         "example": "string"
       },
       "handler": "CheckCoolStatus(w, r, queryParams)",
+      "responseType": "custom",
       "response": {
         "cool": "bool"
+      }
+    },
+    {
+      "name": "Aha3",
+      "endpoint": "/api/v1/testie2",
+      "method": "Get",
+      "queryParams": {
+        "size": "string"
+      },
+      "query": "SELECT {count}$ FROM public.testies t WHERE t.size = ${size}",
+      "responseType": "rows",
+      "response": {
+        "count": "int"
       }
     }
   ]
