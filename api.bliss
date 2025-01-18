@@ -1,29 +1,17 @@
 {
   "operations": [
     {
-      "name": "Aha",
-      "endpoint": "/api/v1/test",
+      "name": "Example",
+      "endpoint": "/api/v1/example",
       "method": "Get",
       "queryParams": {
-        "example": "string",
-        "anything": "string"
+        "example": "string"
       },
       "type": "row",
-      "query": "SELECT {name}$, {email}$ FROM public.profile p WHERE p.id = ${userID} AND p.name = ${name}",
+      "query": "SELECT {name}$ FROM public.example e WHERE e.example = ${example}",
       "response": {
-        "name": "string",
-        "email": "string"
+        "name": "string"
       }
-    },
-    {
-      "name": "Aha3",
-      "endpoint": "/api/v1/testie2",
-      "method": "Delete",
-      "body": {
-        "size": "string"
-      },
-      "type": "row",
-      "query": "DELETE FROM public.testies t WHERE t.size = ${size}"
     }
   ]
 }
