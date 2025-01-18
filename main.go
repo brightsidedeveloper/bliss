@@ -3,15 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
-	"master-gen/generator"
+	"master-gen/internal/generator"
 )
 
 func main() {
 
 	err := (&generator.Generator{
-		BlissPath:   "./api.bliss",
-		GenesisPath: "./app/genesis",
-		ApiPaths: []string{
+		BlissPath:  "./api.bliss",
+		ServerPath: "./app",
+		ClientPaths: []string{
 			"./clients/web/src/api",
 		},
 	}).Generate()

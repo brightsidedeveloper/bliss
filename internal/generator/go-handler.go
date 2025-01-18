@@ -2,8 +2,8 @@ package generator
 
 import (
 	"fmt"
-	"master-gen/parser"
-	"master-gen/util"
+	"master-gen/internal/parser"
+	"master-gen/internal/util"
 	"regexp"
 	"strings"
 )

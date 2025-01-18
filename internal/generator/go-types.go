@@ -1,9 +1,9 @@
 package generator
 
 import (
-	"master-gen/parser"
-	"master-gen/util"
-	"master-gen/writer"
+	"master-gen/internal/parser"
+	"master-gen/internal/util"
+	"master-gen/internal/writer"
 )
 
 func genGoTypes(ops parser.Bliss, path string) error {
