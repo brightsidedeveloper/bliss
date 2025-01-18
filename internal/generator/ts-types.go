@@ -12,7 +12,7 @@ func genTsTypes(bliss parser.Bliss, path string) error {
 	for _, op := range bliss.Operations {
 		if op.QueryParams != nil {
 			code += `
-export interface ` + op.Name + `Query {`
+export interface ` + op.Method + op.Name + `Query {`
 			for k, t := range op.QueryParams {
 				code += `
 	` + k + `: ` + t + `;`
@@ -23,7 +23,7 @@ export interface ` + op.Name + `Query {`
 		}
 		if op.Body != nil {
 			code += `
-export interface ` + op.Name + `Body {`
+export interface ` + op.Method + op.Name + `Body {`
 			for k, t := range op.Body {
 				code += `
 	` + k + `: ` + t + `;`
@@ -35,7 +35,7 @@ export interface ` + op.Name + `Body {`
 
 		if op.Res != nil {
 			code += `
-export interface ` + op.Name + `Res {`
+export interface ` + op.Method + op.Name + `Res {`
 			for k, t := range op.Res {
 				code += `
 	` + k + `: ` + convertGoTypeToTs(t) + `;`
@@ -43,6 +43,9 @@ export interface ` + op.Name + `Res {`
 			code += `
 }
 			`
+		} else {
+			code += `
+export interface ` + op.Method + op.Name + `Res {}`
 		}
 	}
 

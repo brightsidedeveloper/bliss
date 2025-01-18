@@ -3,17 +3,20 @@ package cli
 import (
 	"log"
 	"master-gen/internal/generator"
+	"master-gen/internal/parser"
 
 	"github.com/charmbracelet/huh"
 )
 
 func generate() {
-	err := (&generator.Generator{
-		BlissPath:  "./api.bliss",
-		ServerPath: "./app",
-		ClientPaths: []string{
-			"./clients/web/src/api",
-		},
+	config, err := parser.GetConfig("./config.bliss")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = (&generator.Generator{
+		BlissPath:  config.BlissPath,
+		ServerPath: config.ServerPath,
+		WebPath:    config.WebPath,
 	}).Generate()
 
 	if err != nil {

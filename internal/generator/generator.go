@@ -6,9 +6,9 @@ import (
 )
 
 type Generator struct {
-	BlissPath   string
-	ServerPath  string
-	ClientPaths []string
+	BlissPath  string
+	ServerPath string
+	WebPath    string
 }
 
 func (g *Generator) Generate() error {
@@ -30,16 +30,21 @@ func (g *Generator) Generate() error {
 		return err
 	}
 	// TS
-	for _, path := range g.ClientPaths {
-		if err := genRequest(path); err != nil {
+	if g.WebPath != "" {
+
+		if err := createWebIfNotExists(g.WebPath); err != nil {
 			return err
 		}
-		if err := genTsTypes(bliss, path); err != nil {
+
+		if err := genRequest(g.WebPath + "/src/api"); err != nil {
 			return err
 		}
-		// if err := genBlissClient(bliss, path); err != nil {
-		// 	return err
-		// }
+		if err := genTsTypes(bliss, g.WebPath+"/src/api"); err != nil {
+			return err
+		}
+		if err := genBlissClient(bliss, g.WebPath+"/src/api"); err != nil {
+			return err
+		}
 	}
 	return nil
 }

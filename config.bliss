@@ -1,7 +1,5 @@
 {
   "blissPath": "./api.bliss",
   "serverPath": "./app",
-  "clientPaths": [
-    "./client/web/src/api"
-  ]
+  "webPath": "./clients/web"
 }
