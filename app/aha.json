@@ -31,8 +31,8 @@
     {
       "name": "Aha3",
       "endpoint": "/api/v1/testie2",
-      "method": "Get",
-      "queryParams": {
+      "method": "Post",
+      "body": {
         "size": "string"
       },
       "query": "SELECT {count}$ FROM public.testies t WHERE t.size = ${size}",

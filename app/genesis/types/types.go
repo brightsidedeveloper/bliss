@@ -25,8 +25,7 @@ type Aha3Row struct {
 	Count int `json:"count"`
 }
 	
-type Aha3Query struct {
+type Aha3Body struct {
 	Size string `json:"size"`
 }
-
-	
+		

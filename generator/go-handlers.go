@@ -15,67 +15,72 @@ func getNamespace(endpoint string) (string, error) {
 	return parts[2], nil
 }
 
-func packageAndImports(hasQueries, hasInjections bool) string {
+func packageAndImports(hasQueries, hasInjections, hasBody bool) string {
 
-	if hasInjections && hasQueries {
-		return `
+	code := `
 package handler
 
 import (
-	"app/genesis/injection"
-	"app/genesis/types"
 	"context"
 	"net/http"
-	"time"
-)
+	"app/genesis/types"
 	`
-	}
-	if hasInjections {
-		return `
-package handler
-
-import (
-	"app/genesis/injection"
-	"app/genesis/types"
-	"context"
-	"net/http"
-)
+	if hasBody {
+		code += `"encoding/json"
 `
 	}
+
 	if hasQueries {
-		return `
-package handler
+		code += `"time"`
+	}
 
-import (
-	"app/genesis/types"
-	"context"
-	"net/http"
-	"time"
+	if hasInjections {
+		code += `
+	"app/genesis/injection"`
+
+	}
+
+	code += `
 )
 `
-	}
-	return ""
+
+	return code
 }
 
 func genHandlers(ops parser.AhaJSON, path string) error {
 	handlers := make(map[string]string)
+
+	hasQuery := false
+	hasInjection := false
+	hasBody := false
+	for _, op := range ops.Operations {
+		if op.Body != nil {
+			hasBody = true
+		}
+
+		op.Query = strings.TrimSpace(op.Query)
+		if op.Query != "" {
+			hasQuery = true
+
+		}
+		op.Handler = strings.TrimSpace(op.Handler)
+		if op.Handler != "" {
+			hasInjection = true
+
+		}
+	}
 
 	for _, op := range ops.Operations {
 		namespace, err := getNamespace(op.Endpoint)
 		if err != nil {
 			return fmt.Errorf("failed to extract namespace: %w", err)
 		}
-		var code string
-		switch op.Method {
-		case "Get":
-			code = generateGetHandler(op)
-		default:
-			continue
-		}
+		code := generateHandler(op)
+
 		if existingCode, ok := handlers[namespace]; ok {
 			handlers[namespace] = existingCode + code
 		} else {
-			handlers[namespace] = packageAndImports(op.QueryParams != nil, op.Handler != "") + code
+			handlers[namespace] = packageAndImports(hasQuery, hasInjection, hasBody) + code
 		}
 	}
 

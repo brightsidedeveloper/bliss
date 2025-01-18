@@ -10,6 +10,7 @@ type AhaJSON struct {
 }
 
 type QueryParams map[string]string
+type Body map[string]string
 type Response map[string]string
 
 type Operation struct {
@@ -17,6 +18,7 @@ type Operation struct {
 	Endpoint    string      `json:"endpoint"`
 	Method      string      `json:"method"`
 	QueryParams QueryParams `json:"queryParams"`
+	Body        Body        `json:"body"`
 	Query       string      `json:"query"`
 	Handler     string      `json:"handler"`
 	ResType     string      `json:"responseType"`

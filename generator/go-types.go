@@ -38,6 +38,18 @@ type ` + op.Name + `Query struct {`
 
 	`
 		}
+
+		if op.Body != nil {
+			goCode += `
+type ` + op.Name + `Body struct {`
+			for k, t := range op.Body {
+				goCode += `
+	` + util.Capitalize(k) + ` ` + t + " `" + `json:"` + k + `"` + "`"
+			}
+			goCode += `
+}
+		`
+		}
 	}
 
 	writer.WriteFile(path+"/types/types.go", goCode)
