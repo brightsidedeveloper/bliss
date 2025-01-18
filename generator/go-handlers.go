@@ -26,12 +26,12 @@ import (
 	"app/genesis/types"
 	`
 	if hasBody {
-		code += `"encoding/json"
-`
+		code += `"encoding/json"`
 	}
 
 	if hasQueries {
-		code += `"time"`
+		code += `
+	"time"`
 	}
 
 	if hasInjections {
@@ -47,7 +47,7 @@ import (
 	return code
 }
 
-func genHandlers(ops parser.AhaJSON, path string) error {
+func genHandlers(ops parser.Bliss, path string) error {
 	handlers := make(map[string]string)
 
 	hasQuery := false

@@ -6,7 +6,7 @@ import (
 	"master-gen/writer"
 )
 
-func genGoTypes(ops parser.AhaJSON, path string) error {
+func genGoTypes(ops parser.Bliss, path string) error {
 
 	goCode := `package types
 

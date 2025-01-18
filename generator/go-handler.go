@@ -9,16 +9,24 @@ import (
 )
 
 func generateHandler(op parser.Operation) string {
-	switch op.ResType {
+	var goCode string
+	switch op.Type {
 	case "row":
-		return generateQueryRowFunc(op)
+		goCode = generateQueryRowFunc(op)
 	case "rows":
-		return generateQueryRowsFunc(op)
-	case "custom":
-		return generateCustomFunc(op)
+		goCode = generateQueryRowsFunc(op)
 	default:
-		return ""
+		if op.Handler == "" {
+			return ""
+		}
+		goCode = generateCustomFunc(op)
 	}
+
+	goCode += `
+	h.JSON.Success(w, res)
+}	
+`
+	return goCode
 }
 
 func generateQueryRowFunc(op parser.Operation) string {
@@ -31,12 +39,8 @@ func (h *Handler) ` + op.Method + op.Name + `(w http.ResponseWriter, r *http.Req
 	if op.Body != nil {
 		goCode += generateBody(op.Name, op.Body)
 	}
-	goCode += generateQueryRow(op.Name, op.Query, op.QueryParams, op.Res)
+	goCode += generateQueryRow(op.Name, op.Query, op.QueryParams, op.Body, op.Res)
 
-	goCode += `
-	h.JSON.Success(w, res)
-}	
-`
 	return goCode
 }
 
@@ -51,10 +55,7 @@ func (h *Handler) ` + op.Method + op.Name + `(w http.ResponseWriter, r *http.Req
 		goCode += generateBody(op.Name, op.Body)
 	}
 	goCode += generateQueryRows(op.Name, op.Query, op.QueryParams)
-	goCode += `
-	h.JSON.Success(w, res)
-}	
-`
+
 	return goCode
 }
 
@@ -69,10 +70,7 @@ func (h *Handler) ` + op.Method + op.Name + `(w http.ResponseWriter, r *http.Req
 		goCode += generateBody(op.Name, op.Body)
 	}
 	goCode += generateCustom(op.Handler, op.QueryParams)
-	goCode += `
-	h.JSON.Success(w, res)
-}	
-`
+
 	return goCode
 }
 
@@ -101,8 +99,7 @@ func generateBody(name string, body parser.Body) string {
 
 	goCode := `
 	body := types.` + name + `Body{}
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		h.JSON.Error(w, http.StatusBadRequest, "Failed to decode body")
 		return
 	}
@@ -110,11 +107,18 @@ func generateBody(name string, body parser.Body) string {
 	return goCode
 }
 
-func generateQueryRow(name, queryStr string, params parser.QueryParams, res parser.Response) string {
+func generateQueryRow(name, queryStr string, params parser.QueryParams, body parser.Body, res parser.Response) string {
 
 	inserts := make([]string, 0)
-	for k := range params {
-		inserts = append(inserts, "queryParams."+util.Capitalize(k))
+	if len(params) > 0 {
+		for k := range params {
+			inserts = append(inserts, "queryParams."+util.Capitalize(k))
+		}
+	}
+	if len(body) > 0 {
+		for k := range body {
+			inserts = append(inserts, "body."+util.Capitalize(k))
+		}
 	}
 
 	query, _ := processQuery(queryStr)
@@ -133,7 +137,11 @@ func generateQueryRow(name, queryStr string, params parser.QueryParams, res pars
 	}
 	goCode += `
 	res := types.` + name + `Row{}
-	err := h.DB.QueryRowContext(ctx, query, ` + strings.Join(inserts, ", ") + `).Scan(` + strings.Join(scan, ", ") + `)
+	err := h.DB.QueryRowContext(ctx, query, ` + strings.Join(inserts, ", ") + `)`
+	if len(scan) > 0 {
+		goCode += `.Scan(` + strings.Join(scan, ", ") + `)`
+	}
+	goCode += `
 	if err != nil {
 		h.JSON.Error(w, http.StatusInternalServerError, "Failed to query user")
 		return

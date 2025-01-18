@@ -7,8 +7,8 @@ type AhaRow struct {
 }
 	
 type AhaQuery struct {
-	Example string `json:"example"`
 	Anything string `json:"anything"`
+	Example string `json:"example"`
 }
 
 	
@@ -22,7 +22,6 @@ type SuperTestQuery struct {
 
 	
 type Aha3Row struct {
-	Count int `json:"count"`
 }
 	
 type Aha3Body struct {

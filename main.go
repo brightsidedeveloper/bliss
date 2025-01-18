@@ -7,18 +7,17 @@ import (
 )
 
 func main() {
-	aha, err := parser.ParseAhaJSON("./app/aha.json")
+	bliss, err := parser.ParseBliss("./app/aha.json")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	g := &generator.Generator{
 		GenesisPath: "./app/genesis",
-		Bliss:       aha,
+		Bliss:       bliss,
 	}
 
 	if err := g.Generate(); err != nil {
 		log.Fatal(err)
 	}
-
 }

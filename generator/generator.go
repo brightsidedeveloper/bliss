@@ -6,7 +6,7 @@ import (
 
 type Generator struct {
 	GenesisPath string
-	Bliss       parser.AhaJSON
+	Bliss       parser.Bliss
 }
 
 func (g *Generator) Generate() error {

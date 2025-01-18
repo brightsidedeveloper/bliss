@@ -10,7 +10,7 @@ func MountRoutes(r *chi.Mux, h *handler.Handler) {
 	
 		r.Get("/api/v1/test", h.GetAha)
 		r.Get("/api/v1/testie", h.GetSuperTest)
-		r.Post("/api/v1/testie2", h.PostAha3)
+		r.Delete("/api/v1/testie2", h.DeleteAha3)
 
 }
 	

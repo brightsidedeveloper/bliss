@@ -8,8 +8,8 @@
         "example": "string",
         "anything": "string"
       },
+      "type": "row",
       "query": "SELECT {name}$, {email}$ FROM public.profile p WHERE p.id = ${userID} AND p.name = ${name}",
-      "responseType": "row",
       "response": {
         "name": "string",
         "email": "string"
@@ -23,7 +23,6 @@
         "example": "string"
       },
       "handler": "CheckCoolStatus(w, r, queryParams)",
-      "responseType": "custom",
       "response": {
         "cool": "bool"
       }
@@ -31,15 +30,12 @@
     {
       "name": "Aha3",
       "endpoint": "/api/v1/testie2",
-      "method": "Post",
+      "method": "Delete",
       "body": {
         "size": "string"
       },
-      "query": "SELECT {count}$ FROM public.testies t WHERE t.size = ${size}",
-      "responseType": "rows",
-      "response": {
-        "count": "int"
-      }
+      "type": "row",
+      "query": "DELETE FROM public.testies t WHERE t.size = ${size}"
     }
   ]
 }

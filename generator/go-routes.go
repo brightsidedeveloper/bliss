@@ -6,7 +6,7 @@ import (
 	"master-gen/writer"
 )
 
-func genMountRoutes(ops parser.AhaJSON, path string) error {
+func genMountRoutes(ops parser.Bliss, path string) error {
 
 	operationNames := make(map[string]int)
 	for _, op := range ops.Operations {

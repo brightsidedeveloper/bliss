@@ -11,8 +11,8 @@ import (
 
 func (h *Handler) GetAha(w http.ResponseWriter, r *http.Request) {
 	queryParams := types.AhaQuery{
-		Anything: r.URL.Query().Get("anything"),
 		Example:  r.URL.Query().Get("example"),
+		Anything: r.URL.Query().Get("anything"),
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -44,10 +44,9 @@ func (h *Handler) GetSuperTest(w http.ResponseWriter, r *http.Request) {
 	h.JSON.Success(w, res)
 }
 
-func (h *Handler) PostAha3(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteAha3(w http.ResponseWriter, r *http.Request) {
 	body := types.Aha3Body{}
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		h.JSON.Error(w, http.StatusBadRequest, "Failed to decode body")
 		return
 	}
@@ -55,24 +54,13 @@ func (h *Handler) PostAha3(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := "SELECT count FROM public.testies t WHERE t.size = $1"
+	query := "DELETE FROM public.testies t WHERE t.size = $1"
 
-	rows, err := h.DB.QueryContext(ctx, query)
+	res := types.Aha3Row{}
+	err := h.DB.QueryRowContext(ctx, query, body.Size)
 	if err != nil {
 		h.JSON.Error(w, http.StatusInternalServerError, "Failed to query user")
 		return
-	}
-	defer rows.Close()
-
-	res := make([]types.Aha3Row, 0)
-	for rows.Next() {
-		row := types.Aha3Row{}
-		err = rows.Scan()
-		if err != nil {
-			h.JSON.Error(w, http.StatusInternalServerError, "Failed to query user")
-			return
-		}
-		res = append(res, row)
 	}
 
 	h.JSON.Success(w, res)

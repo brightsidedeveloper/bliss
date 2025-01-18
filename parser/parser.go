@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-type AhaJSON struct {
+type Bliss struct {
 	Operations []Operation `json:"operations"`
 }
 
@@ -21,23 +21,23 @@ type Operation struct {
 	Body        Body        `json:"body"`
 	Query       string      `json:"query"`
 	Handler     string      `json:"handler"`
-	ResType     string      `json:"responseType"`
+	Type        string      `json:"type"`
 	Res         Response    `json:"response"`
 }
 
-func ParseAhaJSON(path string) (AhaJSON, error) {
+func ParseBliss(path string) (Bliss, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return AhaJSON{}, err
+		return Bliss{}, err
 	}
 	defer file.Close()
 
-	var aha AhaJSON
+	var aha Bliss
 
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&aha)
 	if err != nil {
-		return AhaJSON{}, err
+		return Bliss{}, err
 	}
 	return aha, nil
 }
