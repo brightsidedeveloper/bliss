@@ -99,9 +99,15 @@ func genGets(bliss parser.Bliss) string {
 		if op.Method != "Get" {
 			continue
 		}
+		args := ""
+		params := ""
+		if op.QueryParams != nil {
+			args = `params: ` + op.Method + op.Name + `Query`
+			params = `, params as unknown as Record<string, unknown>`
+		}
 		goCode += `
-	` + op.Name + `(params: ` + op.Method + op.Name + `Query) {
-	return get<` + op.Method + op.Name + `Res>('` + op.Endpoint + `', params as unknown as Record<string, unknown>)
+	` + op.Name + `(` + args + `) {
+	return get<` + op.Method + op.Name + `Res>('` + op.Endpoint + `'` + params + `)
 },`
 
 	}
@@ -116,9 +122,17 @@ func genPosts(bliss parser.Bliss) string {
 		if op.Method != "Post" {
 			continue
 		}
+
+		args := ""
+		body := ""
+		if op.Body != nil {
+			args = `body: ` + op.Method + op.Name + `Body`
+			body = `, body as unknown as Record<string, unknown>`
+		}
+
 		goCode += `
-	` + op.Name + `(body: ` + op.Method + op.Name + `Body) {
-	return post<` + op.Method + op.Name + `Res>('` + op.Endpoint + `', body)
+	` + op.Name + `(` + args + `) {
+	return post<` + op.Method + op.Name + `Res>('` + op.Endpoint + `'` + body + `)
 },`
 
 	}
@@ -133,9 +147,16 @@ func genPuts(bliss parser.Bliss) string {
 		if op.Method != "Put" {
 			continue
 		}
+		args := ""
+		body := ""
+		if op.Body != nil {
+			args = `body: ` + op.Method + op.Name + `Body`
+			body = `, body as unknown as Record<string, unknown>`
+		}
+
 		goCode += `
-	` + op.Name + `(body: ` + op.Method + op.Name + `Body) {
-	return put<` + op.Method + op.Name + `Res>('` + op.Endpoint + `', body)
+	` + op.Name + `(` + args + `) {
+	return put<` + op.Method + op.Name + `Res>('` + op.Endpoint + `'` + body + `)
 },`
 
 	}
@@ -150,9 +171,16 @@ func genPatches(bliss parser.Bliss) string {
 		if op.Method != "Patch" {
 			continue
 		}
+		args := ""
+		body := ""
+		if op.Body != nil {
+			args = `body: ` + op.Method + op.Name + `Body`
+			body = `, body as unknown as Record<string, unknown>`
+		}
+
 		goCode += `
-	` + op.Name + `(body: ` + op.Method + op.Name + `Body) {
-	return patch<` + op.Method + op.Name + `Res>('` + op.Endpoint + `', body)
+	` + op.Name + `(` + args + `) {
+	return patch<` + op.Method + op.Name + `Res>('` + op.Endpoint + `'` + body + `)
 },`
 
 	}
@@ -167,9 +195,16 @@ func genDeletes(bliss parser.Bliss) string {
 		if op.Method != "Delete" {
 			continue
 		}
+		args := ""
+		body := ""
+		if op.Body != nil {
+			args = `body: ` + op.Method + op.Name + `Body`
+			body = `, body as unknown as Record<string, unknown>`
+		}
+
 		goCode += `
-	` + op.Name + `(body: ` + op.Method + op.Name + `Body) {
-	return del<` + op.Method + op.Name + `Res>('` + op.Endpoint + `', body as unknown as Record<string, unknown>)
+	` + op.Name + `(` + args + `) {
+	return del<` + op.Method + op.Name + `Res>('` + op.Endpoint + `'` + body + `)
 },`
 
 	}

@@ -1,5 +1,0 @@
-{
-  "blissPath": "./api.bliss",
-  "serverPath": "./app",
-  "webPath": "./clients/web"
-}
