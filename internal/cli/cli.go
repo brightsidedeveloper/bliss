@@ -50,10 +50,13 @@ func initBliss() {
     {
       "endpoint": "/api/v1/example22",
       "query": "CreateExample"
+    },
+    {
+      "endpoint": "/api/v1/example2",
+      "handler": "Inject"
     }
   ]
-}
-`)
+}`)
 	writer.WriteFile("schemas.sql", `CREATE TABLE IF NOT EXISTS public.example (
   id   SERIAL PRIMARY KEY,
   name text      NOT NULL
