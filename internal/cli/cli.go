@@ -1,15 +1,15 @@
 package cli
 
 import (
-	"bytes"
 	"fmt"
 	"log"
+	"master-gen/internal/docker"
 	"master-gen/internal/generator"
 	"master-gen/internal/parser"
+	"master-gen/internal/server"
 	"master-gen/internal/writer"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/charmbracelet/huh"
 )
@@ -67,22 +67,31 @@ func Run() {
 		hasConfig = true
 	}
 
-	if hasConfig {
-		opts = append(opts, huh.NewOption("Generate", "generate"))
-		config, err := parser.GetConfig("./config.bliss")
-		if err != nil {
-			log.Fatal(err)
+	if !hasConfig {
+		initBliss()
+		fmt.Println("Initialized bliss config")
+		return
+	}
+
+	opts = append(opts, huh.NewOption("Generate", "generate"))
+	config, err := parser.GetConfig("./config.bliss")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := os.Stat(config.ServerPath + "/docker-compose.yaml"); !os.IsNotExist(err) {
+
+		if server.IsServerRunning(config.ServerPath) {
+			opts = append(opts, huh.NewOption("Stop Server", "stopServer"))
+		} else {
+			opts = append(opts, huh.NewOption("Start Server", "startServer"))
 		}
-		if _, err := os.Stat(config.ServerPath + "/docker-compose.yaml"); !os.IsNotExist(err) {
-			if checkDockerDB() {
-				opts = append(opts, huh.NewOption("DB Down", "docker-compose down"))
-			} else {
-				opts = append(opts, huh.NewOption("DB Up", "docker-compose up -d"))
-			}
-			dockerComposePath = config.ServerPath
+
+		if docker.CheckDockerDB() {
+			opts = append(opts, huh.NewOption("DB Down", "docker-compose down"))
+		} else {
+			opts = append(opts, huh.NewOption("DB Up", "docker-compose up -d"))
 		}
-	} else {
-		opts = append(opts, huh.NewOption("Initialize", "init"))
+		dockerComposePath = config.ServerPath
 	}
 
 	form := huh.NewForm(
@@ -95,7 +104,7 @@ func Run() {
 				Value(&cmd),
 		),
 	)
-	err := form.Run()
+	err = form.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -104,9 +113,18 @@ func Run() {
 	case "generate":
 		generate()
 		fmt.Println("Generated code")
-	case "init":
-		initBliss()
-		fmt.Println("Initialized bliss config")
+	case "startServer":
+		err := server.StartServer(config.ServerPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Started Server")
+	case "stopServer":
+		err := server.StopServer(config.ServerPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Stopped Server")
 	case "docker-compose up -d":
 		cmd := exec.Command("docker-compose", "up", "-d")
 		cmd.Dir = dockerComposePath
@@ -126,29 +144,4 @@ func Run() {
 	default:
 		log.Fatalf("unknown command %s", cmd)
 	}
-}
-
-func checkDockerDB() bool {
-	cmd := exec.Command("docker", "ps")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		fmt.Printf("Error executing docker ps: %v\n", err)
-		return false
-	}
-
-	// Read the output of `docker ps`
-	output := out.String()
-	lines := strings.Split(output, "\n")
-
-	// Check if any line contains the container name "db"
-	containerFound := false
-	for _, line := range lines {
-		if strings.Contains(line, "db") {
-			containerFound = true
-			break
-		}
-	}
-	return containerFound
 }
