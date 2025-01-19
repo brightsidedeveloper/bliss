@@ -14,7 +14,6 @@ func createServerIfNotExists(path string) error {
 }
 
 func createWebIfNotExists(path string) error {
-	fmt.Println("Creating web")
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		fmt.Println("Cloning web")
 		return clone.Repo(path, "https://github.com/brightsidedeveloper/bsd-planet-web.git")

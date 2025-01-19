@@ -49,7 +49,6 @@ import (
 func genHandlers(g *Generator, ops parser.Bliss, dest string) error {
 	handlers := make(map[string]string)
 	structParams, singleParams, err := parseSqlcFile(path.Join(g.ServerPath, "genesis/queries/queries.sql.go"))
-	fmt.Println(structParams, singleParams)
 	if err != nil {
 		return err
 	}

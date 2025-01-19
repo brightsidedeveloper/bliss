@@ -96,39 +96,6 @@ func generateQueryBinding(query, paramStr string) string {
 	`, insert, query, paramStr)
 }
 
-func generateQueryParams(query string, structParams map[string]map[string]string, singleParams map[string]string) string {
-	paramStruct := query + "Params"
-	fields, structExists := structParams[paramStruct]
-	singleParam, singleExists := singleParams[query]
-
-	if structExists {
-		// Handle multi-field query params
-		goCode := `
-	queryParams := queries.` + paramStruct + `{`
-		for field, fieldType := range fields {
-			goCode += `
-		` + field + `: r.URL.Query().Get("` + strings.ToLower(field) + `"), // Type: ` + fieldType
-		}
-		goCode += `
-	}
-	`
-		return goCode
-	} else if singleExists {
-		// Handle single-parameter case
-		parts := strings.Split(singleParam, " ")
-		paramName := parts[0]
-		paramType := parts[1]
-
-		goCode := `
-	var ` + paramName + ` ` + paramType + `
-	` + paramName + ` = r.URL.Query().Get("` + strings.ToLower(paramName) + `") // Type: ` + paramType + `
-	`
-		return goCode
-	}
-
-	return "// No Params Found"
-}
-
 func generateBody(query string, bodies map[string]map[string]string, singleParams map[string]string) string {
 	bodyStruct := query + "Params"
 	_, structExists := bodies[bodyStruct]
@@ -137,11 +104,11 @@ func generateBody(query string, bodies map[string]map[string]string, singleParam
 	if structExists {
 		// Handle multi-field body structs
 		goCode := `
-		body := queries.` + bodyStruct + `{}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			h.JSON.Error(w, http.StatusBadRequest, "Failed to decode body")
-			return
-		}
+	body := queries.` + bodyStruct + `{}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		h.JSON.Error(w, http.StatusBadRequest, "Failed to decode body")
+		return
+	}
 		`
 		return goCode
 	} else if singleExists {
@@ -150,16 +117,16 @@ func generateBody(query string, bodies map[string]map[string]string, singleParam
 		paramName := parts[0]
 		paramType := parts[1]
 		goCode := `
-		var ` + paramName + ` ` + paramType + `
-		if err := json.NewDecoder(r.Body).Decode(&` + paramName + `); err != nil {
-			h.JSON.Error(w, http.StatusBadRequest, "Failed to decode body")
-			return
-		}
+	var ` + paramName + ` ` + paramType + `
+	if err := json.NewDecoder(r.Body).Decode(&` + paramName + `); err != nil {
+		h.JSON.Error(w, http.StatusBadRequest, "Failed to decode body")
+		return
+	}
 		`
 		return goCode
 	}
 
-	return "// No Body Found"
+	return ""
 }
 
 func parseSqlcFile(filePath string) (map[string]map[string]string, map[string]string, error) {
