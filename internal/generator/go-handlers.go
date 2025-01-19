@@ -48,7 +48,8 @@ import (
 
 func genHandlers(g *Generator, ops parser.Bliss, dest string) error {
 	handlers := make(map[string]string)
-	structParams, singleParams, err := parseSqlcFile(path.Join(g.ServerPath, "genesis/queries/queries.sql.go"))
+	params, err := parseSqlcFile(path.Join(g.ServerPath, "genesis/queries/queries.sql.go"))
+	// types, err := parseInjections(path.Join(g.ServerPath, "genesis/injections"))
 	if err != nil {
 		return err
 	}
@@ -73,7 +74,7 @@ func genHandlers(g *Generator, ops parser.Bliss, dest string) error {
 		if err != nil {
 			return fmt.Errorf("failed to extract namespace: %w", err)
 		}
-		code := generateHandler(op, structParams, singleParams)
+		code := generateHandler(op, params)
 
 		if existingCode, ok := handlers[namespace]; ok {
 			handlers[namespace] = existingCode + code

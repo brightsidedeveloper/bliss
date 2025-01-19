@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-func generateHandler(op parser.Operation, structParams map[string]map[string]string, singleParams map[string]string) string {
+func generateHandler(op parser.Operation, params SqlcParams) string {
 	var goCode string
 
-	goCode = genQuery(op, structParams, singleParams)
+	goCode = genQuery(op, params)
 
 	goCode += `
 	h.JSON.Success(w, res)
@@ -21,33 +21,31 @@ func generateHandler(op parser.Operation, structParams map[string]map[string]str
 	return goCode
 }
 
-func genQuery(op parser.Operation, structParams map[string]map[string]string, singleParams map[string]string) string {
+func genQuery(op parser.Operation, params SqlcParams) string {
 	goCode := ""
 	goCode += `
 func (h *Handler) ` + op.Query + `(w http.ResponseWriter, r *http.Request) {`
 
-	goCode += generateBody(op.Query, structParams, singleParams)
+	goCode += generateBody(op.Query, params)
 
-	paramStr := genParamStr(op.Query, structParams, singleParams)
+	paramStr := genParamStr(op.Query, params)
 
 	goCode += generateQueryBinding(op.Query, paramStr)
 
 	return goCode
 }
 
-func genParamStr(query string, structParams map[string]map[string]string, singleParams map[string]string) string {
-	// Check for struct-based parameters
-	if _, structExists := structParams[query+"Params"]; structExists {
+func genParamStr(query string, params SqlcParams) string {
+	if _, structExists := params.structured[query+"Params"]; structExists {
 		return ", body"
 	}
-	// Check for single parameter
-	if singleParam, singleExists := singleParams[query]; singleExists {
+
+	if singleParam, singleExists := params.single[query]; singleExists {
 		parts := strings.Split(singleParam, " ")
 		paramName := parts[0]
 		return ", " + paramName
 	}
 
-	// No parameters
 	return ""
 }
 
@@ -96,13 +94,12 @@ func generateQueryBinding(query, paramStr string) string {
 	`, insert, query, paramStr)
 }
 
-func generateBody(query string, bodies map[string]map[string]string, singleParams map[string]string) string {
+func generateBody(query string, params SqlcParams) string {
 	bodyStruct := query + "Params"
-	_, structExists := bodies[bodyStruct]
-	singleParam, singleExists := singleParams[query]
+	_, structExists := params.structured[bodyStruct]
+	singleParam, singleExists := params.single[query]
 
 	if structExists {
-		// Handle multi-field body structs
 		goCode := `
 	body := queries.` + bodyStruct + `{}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -112,7 +109,6 @@ func generateBody(query string, bodies map[string]map[string]string, singleParam
 		`
 		return goCode
 	} else if singleExists {
-		// Handle single parameter case
 		parts := strings.Split(singleParam, " ")
 		paramName := parts[0]
 		paramType := parts[1]
@@ -129,7 +125,13 @@ func generateBody(query string, bodies map[string]map[string]string, singleParam
 	return ""
 }
 
-func parseSqlcFile(filePath string) (map[string]map[string]string, map[string]string, error) {
+type SqlcParams struct {
+	structured map[string]map[string]string
+	single     map[string]string
+}
+
+func parseSqlcFile(filePath string) (SqlcParams, error) {
+	params := SqlcParams{}
 	structParams := make(map[string]map[string]string)
 	singleParams := make(map[string]string)
 
@@ -138,7 +140,7 @@ func parseSqlcFile(filePath string) (map[string]map[string]string, map[string]st
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, nil, err
+		return params, err
 	}
 	defer file.Close()
 
@@ -205,10 +207,12 @@ func parseSqlcFile(filePath string) (map[string]map[string]string, map[string]st
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, nil, err
+		return params, err
 	}
 
-	return structParams, singleParams, nil
+	params.single = singleParams
+	params.structured = structParams
+	return params, nil
 }
 
 func extractMethodName(line string) string {
