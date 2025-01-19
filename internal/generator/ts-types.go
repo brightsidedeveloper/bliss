@@ -1,21 +1,22 @@
 package generator
 
 import (
-	"master-gen/internal/parser"
+	"fmt"
 	"master-gen/internal/writer"
 )
 
-func genTsTypes(bliss parser.Bliss, path string) error {
+func genTsTypes(params ParamStrings, responses ResponseStrings, path string) error {
 
 	code := ``
 
-	for _, op := range bliss.Operations {
-		name := op.Query
-		if op.Handler != "" {
-			name = op.Handler
-		}
-		code += `
-export interface ` + name + `Res {}`
+	for _, p := range params {
+		code += fmt.Sprintf(`
+		%s`, p.interfaceType)
+	}
+
+	for _, r := range responses {
+		code += fmt.Sprintf(`
+		%s`, r.interfaceType)
 	}
 
 	return writer.WriteFile(path+"/types.ts", code)

@@ -7,7 +7,7 @@ import (
 	"master-gen/internal/writer"
 )
 
-func genBlissClient(bliss parser.Bliss, path string) error {
+func genBlissClient(bliss parser.Bliss, params ParamStrings, response ResponseStrings, path string) error {
 
 	code := genRequestImport(map[string]bool{"Post": true})
 	code += genTypeImports(bliss)
@@ -22,10 +22,13 @@ export default class Bliss {`
 			name = op.Handler
 		}
 
+		p := params[name]
+		r := response[name]
+
 		code += fmt.Sprintf(`
-	static %s = () => {
-		return post<%s>("%s")
-	}`, name, name+"Res", op.Endpoint)
+	static %s = (%s) => {
+		return post%s("%s"%s)
+	}`, name, p.args, r.use, op.Endpoint, p.use)
 	}
 
 	code += `
