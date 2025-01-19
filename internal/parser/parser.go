@@ -14,15 +14,10 @@ type Body map[string]string
 type Response map[string]string
 
 type Operation struct {
-	Name        string      `json:"name"`
-	Endpoint    string      `json:"endpoint"`
-	Method      string      `json:"method"`
-	QueryParams QueryParams `json:"queryParams"`
-	Body        Body        `json:"body"`
-	Query       string      `json:"query"`
-	Handler     string      `json:"handler"`
-	Type        string      `json:"type"`
-	Res         Response    `json:"response"`
+	Endpoint string `json:"endpoint"`
+	Method   string `json:"method"`
+	Query    string `json:"query"`
+	Handler  string `json:"handler"`
 }
 
 func GetBliss(path string) (Bliss, error) {

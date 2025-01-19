@@ -10,9 +10,9 @@ func genMountRoutes(ops parser.Bliss, path string) error {
 
 	operationNames := make(map[string]int)
 	for _, op := range ops.Operations {
-		operationNames[op.Name]++
-		if operationNames[op.Name] > 1 {
-			return fmt.Errorf("operation name %s is duplicated", op.Name)
+		operationNames[op.Query]++
+		if operationNames[op.Query] > 1 {
+			return fmt.Errorf("operation query %s is duplicated", op.Query)
 		}
 	}
 	endpointMethods := make(map[string]map[string]int)
@@ -41,7 +41,7 @@ func MountRoutes(r *chi.Mux, h *handler.Handler) {
 	`
 	for _, op := range ops.Operations {
 		goCode += `
-		r.` + op.Method + `("` + op.Endpoint + `", h.` + op.Method + op.Name + `)`
+		r.` + op.Method + `("` + op.Endpoint + `", h.` + op.Query + `)`
 	}
 	goCode += `
 

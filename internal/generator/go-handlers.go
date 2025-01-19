@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"master-gen/internal/parser"
 	"master-gen/internal/writer"
+	"path"
 	"strings"
 )
 
@@ -15,7 +16,7 @@ func getNamespace(endpoint string) (string, error) {
 	return parts[2], nil
 }
 
-func packageAndImports(hasQueries, hasInjections, hasBody bool) string {
+func packageAndImports(hasQueries, hasInjections bool) string {
 
 	code := `
 package handler
@@ -23,15 +24,13 @@ package handler
 import (
 	"context"
 	"net/http"
-	"bliss-server/genesis/types"
+	"encoding/json"
 	`
-	if hasBody {
-		code += `"encoding/json"`
-	}
 
 	if hasQueries {
 		code += `
-	"time"`
+	"time"
+	"bliss-server/genesis/queries"`
 	}
 
 	if hasInjections {
@@ -47,16 +46,16 @@ import (
 	return code
 }
 
-func genHandlers(ops parser.Bliss, path string) error {
+func genHandlers(g *Generator, ops parser.Bliss, dest string) error {
 	handlers := make(map[string]string)
-
+	structParams, singleParams, err := parseSqlcFile(path.Join(g.ServerPath, "genesis/queries/queries.sql.go"))
+	fmt.Println(structParams, singleParams)
+	if err != nil {
+		return err
+	}
 	hasQuery := false
 	hasInjection := false
-	hasBody := false
 	for _, op := range ops.Operations {
-		if op.Body != nil {
-			hasBody = true
-		}
 
 		op.Query = strings.TrimSpace(op.Query)
 		if op.Query != "" {
@@ -75,17 +74,17 @@ func genHandlers(ops parser.Bliss, path string) error {
 		if err != nil {
 			return fmt.Errorf("failed to extract namespace: %w", err)
 		}
-		code := generateHandler(op)
+		code := generateHandler(op, structParams, singleParams)
 
 		if existingCode, ok := handlers[namespace]; ok {
 			handlers[namespace] = existingCode + code
 		} else {
-			handlers[namespace] = packageAndImports(hasQuery, hasInjection, hasBody) + code
+			handlers[namespace] = packageAndImports(hasQuery, hasInjection) + code
 		}
 	}
 
 	for namespace, code := range handlers {
-		filePath := fmt.Sprintf(path+"/handler/%s.go", namespace)
+		filePath := fmt.Sprintf(dest+"/handler/%s.go", namespace)
 		err := writer.WriteFile(filePath, code)
 		if err != nil {
 			return fmt.Errorf("failed to write file %s: %w", filePath, err)

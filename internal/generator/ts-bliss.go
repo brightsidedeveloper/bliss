@@ -80,13 +80,13 @@ func genTypeImports(bliss parser.Bliss) string {
 	code := `
 import { `
 	for _, op := range bliss.Operations {
-		if op.QueryParams != nil {
-			code += ` ` + op.Method + op.Name + `Query,`
-		}
-		if op.Body != nil {
-			code += ` ` + op.Method + op.Name + `Body,`
-		}
-		code += ` ` + op.Method + op.Name + `Res,`
+		// if op.QueryParams != nil {
+		// 	code += ` ` + op.Query + `Query,`
+		// }
+		// if op.Body != nil {
+		// 	code += ` ` + op.Query + `Body,`
+		// }
+		code += ` ` + op.Query + `Res,`
 	}
 	code += ` } from './types'`
 	return code
@@ -101,13 +101,13 @@ func genGets(bliss parser.Bliss) string {
 		}
 		args := ""
 		params := ""
-		if op.QueryParams != nil {
-			args = `params: ` + op.Method + op.Name + `Query`
-			params = `, params as unknown as Record<string, unknown>`
-		}
+		// if op.QueryParams != nil {
+		// 	args = `params: ` + op.Query + `Query`
+		// 	params = `, params as unknown as Record<string, unknown>`
+		// }
 		goCode += `
-	` + op.Name + `(` + args + `) {
-	return get<` + op.Method + op.Name + `Res>('` + op.Endpoint + `'` + params + `)
+	` + op.Query + `(` + args + `) {
+	return get<` + op.Query + `Res>('` + op.Endpoint + `'` + params + `)
 },`
 
 	}
@@ -125,14 +125,14 @@ func genPosts(bliss parser.Bliss) string {
 
 		args := ""
 		body := ""
-		if op.Body != nil {
-			args = `body: ` + op.Method + op.Name + `Body`
-			body = `, body as unknown as Record<string, unknown>`
-		}
+		// if op.Body != nil {
+		// 	args = `body: ` + op.Query + `Body`
+		// 	body = `, body as unknown as Record<string, unknown>`
+		// }
 
 		goCode += `
-	` + op.Name + `(` + args + `) {
-	return post<` + op.Method + op.Name + `Res>('` + op.Endpoint + `'` + body + `)
+	` + op.Query + `(` + args + `) {
+	return post<` + op.Query + `Res>('` + op.Endpoint + `'` + body + `)
 },`
 
 	}
@@ -149,14 +149,14 @@ func genPuts(bliss parser.Bliss) string {
 		}
 		args := ""
 		body := ""
-		if op.Body != nil {
-			args = `body: ` + op.Method + op.Name + `Body`
-			body = `, body as unknown as Record<string, unknown>`
-		}
+		// if op.Body != nil {
+		// 	args = `body: ` + op.Query + `Body`
+		// 	body = `, body as unknown as Record<string, unknown>`
+		// }
 
 		goCode += `
-	` + op.Name + `(` + args + `) {
-	return put<` + op.Method + op.Name + `Res>('` + op.Endpoint + `'` + body + `)
+	` + op.Query + `(` + args + `) {
+	return put<` + op.Query + `Res>('` + op.Endpoint + `'` + body + `)
 },`
 
 	}
@@ -173,14 +173,14 @@ func genPatches(bliss parser.Bliss) string {
 		}
 		args := ""
 		body := ""
-		if op.Body != nil {
-			args = `body: ` + op.Method + op.Name + `Body`
-			body = `, body as unknown as Record<string, unknown>`
-		}
+		// if op.Body != nil {
+		// 	args = `body: ` + op.Query + `Body`
+		// 	body = `, body as unknown as Record<string, unknown>`
+		// }
 
 		goCode += `
-	` + op.Name + `(` + args + `) {
-	return patch<` + op.Method + op.Name + `Res>('` + op.Endpoint + `'` + body + `)
+	` + op.Query + `(` + args + `) {
+	return patch<` + op.Query + `Res>('` + op.Endpoint + `'` + body + `)
 },`
 
 	}
@@ -197,14 +197,14 @@ func genDeletes(bliss parser.Bliss) string {
 		}
 		args := ""
 		body := ""
-		if op.Body != nil {
-			args = `body: ` + op.Method + op.Name + `Body`
-			body = `, body as unknown as Record<string, unknown>`
-		}
+		// if op.Body != nil {
+		// 	args = `body: ` + op.Query + `Body`
+		// 	body = `, body as unknown as Record<string, unknown>`
+		// }
 
 		goCode += `
-	` + op.Name + `(` + args + `) {
-	return del<` + op.Method + op.Name + `Res>('` + op.Endpoint + `'` + body + `)
+	` + op.Query + `(` + args + `) {
+	return del<` + op.Query + `Res>('` + op.Endpoint + `'` + body + `)
 },`
 
 	}

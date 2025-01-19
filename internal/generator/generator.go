@@ -27,7 +27,7 @@ func (g *Generator) Generate() error {
 	if err := genGoTypes(bliss, path.Join(g.ServerPath, "genesis")); err != nil {
 		return err
 	}
-	if err := genHandlers(bliss, path.Join(g.ServerPath, "genesis")); err != nil {
+	if err := genHandlers(g, bliss, path.Join(g.ServerPath, "genesis")); err != nil {
 		return err
 	}
 	if err := genMountRoutes(bliss, path.Join(g.ServerPath, "genesis")); err != nil {

@@ -46,8 +46,7 @@ func initBliss() {
       "queryParams": {
         "example": "string"
       },
-      "type": "row",
-      "query": "SELECT {name}$ FROM public.example e WHERE e.example = ${example}",
+      "query": "GetExample",
       "response": {
         "name": "string"
       }
@@ -59,6 +58,81 @@ func initBliss() {
   id   SERIAL PRIMARY KEY,
   name text      NOT NULL
 );`)
+	writer.WriteFile("api.schema.bliss", `{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the operation."
+          },
+          "endpoint": {
+            "type": "string",
+            "description": "The path of the endpoint."
+          },
+          "method": {
+            "type": "string",
+            "description": "The HTTP method of the endpoint."
+          },
+          "query": {
+            "type": "string",
+            "description": "The query to execute."
+          },
+          "queryParams": {
+            "type": "object",
+            "patternProperties": {
+              "\\w+": {
+                "type": "string",
+                "enum": [
+                  "string",
+                  "int",
+                  "bool"
+                ]
+              }
+            },
+            "description": "The query parameters."
+          },
+          "handler": {
+            "type": "string",
+            "description": "The handler to execute."
+          },
+          "response": {
+            "type": "object",
+            "properties": {
+              "test": {
+                "type": "string"
+              }
+            },
+            "description": "The response json."
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "query"
+            ]
+          },
+          {
+            "required": [
+              "handler"
+            ]
+          }
+        ],
+        "required": [
+          "name",
+          "endpoint",
+          "method"
+        ]
+      }
+    }
+  }
+}
+`)
 	writer.WriteFile("queries.sql", `-- name: GetExample :one
 SELECT * FROM public.example
 WHERE name = $1 LIMIT 1;`)
