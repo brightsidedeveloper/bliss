@@ -63,12 +63,9 @@ import { `
 		if op.Handler != "" {
 			name = op.Handler
 		}
-		// if op.QueryParams != nil {
-		// 	code += ` ` + op.Query + `Query,`
-		// }
-		// if op.Body != nil {
-		// 	code += ` ` + op.Query + `Body,`
-		// }
+		if false {
+			// Params
+		}
 		code += ` ` + name + `Res,`
 	}
 	code += ` } from './types'`
