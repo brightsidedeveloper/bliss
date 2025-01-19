@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-func generateHandler(op parser.Operation, params SqlcParams) string {
+func generateHandler(op parser.Operation, params SqlcParams, types SqlcParams) string {
 	var goCode string
 
-	goCode = genQuery(op, params)
+	goCode = genQuery(op, params, types)
 
 	goCode += `
 	h.JSON.Success(w, res)
@@ -21,16 +21,24 @@ func generateHandler(op parser.Operation, params SqlcParams) string {
 	return goCode
 }
 
-func genQuery(op parser.Operation, params SqlcParams) string {
+func genQuery(op parser.Operation, params SqlcParams, types SqlcParams) string {
 	goCode := ""
+	name := op.Query
+	if name == "" {
+		name = op.Handler
+	}
 	goCode += `
-func (h *Handler) ` + op.Query + `(w http.ResponseWriter, r *http.Request) {`
+func (h *Handler) ` + name + `(w http.ResponseWriter, r *http.Request) {`
 
-	goCode += generateBody(op.Query, params)
-
-	paramStr := genParamStr(op.Query, params)
-
-	goCode += generateQueryBinding(op.Query, paramStr)
+	if op.Query != "" {
+		goCode += generateBody(op.Query, params, false)
+		paramStr := genParamStr(op.Query, params)
+		goCode += generateQueryBinding(op.Query, paramStr)
+	} else {
+		goCode += generateBody(op.Handler, types, true)
+		paramStr := genParamStr(op.Handler, types)
+		goCode += generateHandlerBinding(op.Handler, paramStr)
+	}
 
 	return goCode
 }
@@ -93,20 +101,39 @@ func generateQueryBinding(query, paramStr string) string {
 	}
 	`, insert, query, paramStr)
 }
+func generateHandlerBinding(handler, paramStr string) string {
+	insert := "res, err"
 
-func generateBody(query string, params SqlcParams) string {
+	return fmt.Sprintf(`
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	%s := h.Injections.%s(ctx%s)
+	if err != nil {
+		h.JSON.Error(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	`, insert, handler, paramStr)
+}
+
+func generateBody(query string, params SqlcParams, isHandler bool) string {
 	bodyStruct := query + "Params"
 	_, structExists := params.structured[bodyStruct]
 	singleParam, singleExists := params.single[query]
 
+	from := "queries"
+	if isHandler {
+		from = "injections"
+	}
+
 	if structExists {
-		goCode := `
-	body := queries.` + bodyStruct + `{}
+		goCode := fmt.Sprintf(`
+	body := %s.%s{}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		h.JSON.Error(w, http.StatusBadRequest, "Failed to decode body")
 		return
 	}
-		`
+		`, from, bodyStruct)
 		return goCode
 	} else if singleExists {
 		parts := strings.Split(singleParam, " ")
@@ -224,4 +251,80 @@ func extractMethodName(line string) string {
 		return matches[1] // The method name is the first capture group
 	}
 	return ""
+}
+
+func parseInjectionsFile(filePath string) (SqlcParams, error) {
+	params := SqlcParams{
+		structured: make(map[string]map[string]string),
+		single:     make(map[string]string),
+	}
+
+	var currentStruct string
+	var insideStruct bool
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		return params, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+
+		// Detect struct definition
+		if strings.HasPrefix(line, "type") && strings.Contains(line, "struct {") {
+			parts := strings.Fields(line)
+			if len(parts) > 1 {
+				currentStruct = parts[1]
+				params.structured[currentStruct] = make(map[string]string)
+				insideStruct = true
+			}
+			continue
+		}
+
+		// Parse struct fields
+		if insideStruct {
+			if line == "}" {
+				insideStruct = false
+				currentStruct = ""
+				continue
+			}
+			parts := strings.Fields(line)
+			if len(parts) == 2 && currentStruct != "" {
+				fieldName := parts[0]
+				fieldType := parts[1]
+				params.structured[currentStruct][fieldName] = fieldType
+			}
+			continue
+		}
+
+		// Detect function signature
+		if strings.HasPrefix(line, "func (i *Injections)") {
+			start := strings.Index(line, "(")
+			end := strings.LastIndex(line, ")")
+			if start != -1 && end != -1 {
+				funcSig := line[start+1 : end]
+				paramsList := strings.Split(funcSig, ",")
+
+				// Parse params (skipping ctx)
+				for _, param := range paramsList {
+					paramParts := strings.Fields(strings.TrimSpace(param))
+					if len(paramParts) == 2 {
+						paramType := paramParts[1]
+						if _, exists := params.structured[paramType]; !exists {
+							// Only add if it's a struct type in this file
+							params.structured[paramType] = make(map[string]string)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return params, err
+	}
+
+	return params, nil
 }

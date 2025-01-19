@@ -35,7 +35,7 @@ import (
 
 	if hasInjections {
 		code += `
-	"bliss-server/genesis/injection"`
+	"bliss-server/injections"`
 
 	}
 
@@ -49,7 +49,10 @@ import (
 func genHandlers(g *Generator, ops parser.Bliss, dest string) error {
 	handlers := make(map[string]string)
 	params, err := parseSqlcFile(path.Join(g.ServerPath, "genesis/queries/queries.sql.go"))
-	// types, err := parseInjections(path.Join(g.ServerPath, "genesis/injections"))
+	if err != nil {
+		return err
+	}
+	types, err := parseInjectionsFile(path.Join(g.ServerPath, "injections/inject.go"))
 	if err != nil {
 		return err
 	}
@@ -74,7 +77,7 @@ func genHandlers(g *Generator, ops parser.Bliss, dest string) error {
 		if err != nil {
 			return fmt.Errorf("failed to extract namespace: %w", err)
 		}
-		code := generateHandler(op, params)
+		code := generateHandler(op, params, types)
 
 		if existingCode, ok := handlers[namespace]; ok {
 			handlers[namespace] = existingCode + code

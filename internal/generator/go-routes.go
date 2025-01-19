@@ -33,8 +33,14 @@ import (
 func MountRoutes(r *chi.Mux, h *handler.Handler) {
 `
 	for _, op := range ops.Operations {
+		var name string
+		if op.Query != "" {
+			name = op.Query
+		} else {
+			name = op.Handler
+		}
 		goCode += `
-	r.Post("` + op.Endpoint + `", h.` + op.Query + `)`
+	r.Post("` + op.Endpoint + `", h.` + name + `)`
 	}
 	goCode += `
 }
