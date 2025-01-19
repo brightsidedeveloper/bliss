@@ -9,13 +9,8 @@ type Bliss struct {
 	Operations []Operation `json:"operations"`
 }
 
-type QueryParams map[string]string
-type Body map[string]string
-type Response map[string]string
-
 type Operation struct {
 	Endpoint string `json:"endpoint"`
-	Method   string `json:"method"`
 	Query    string `json:"query"`
 	Handler  string `json:"handler"`
 }

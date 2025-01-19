@@ -40,16 +40,16 @@ func initBliss() {
 	writer.WriteFile("./api.bliss", `{
   "operations": [
     {
-      "name": "Example",
       "endpoint": "/api/v1/example",
-      "method": "Get",
-      "queryParams": {
-        "example": "string"
-      },
-      "query": "GetExample",
-      "response": {
-        "name": "string"
-      }
+      "query": "GetExample"
+    },
+    {
+      "endpoint": "/api/v1/examples",
+      "query": "GetExamples"
+    },
+    {
+      "endpoint": "/api/v1/example22",
+      "query": "CreateExample"
     }
   ]
 }
@@ -67,48 +67,17 @@ func initBliss() {
       "items": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string",
-            "description": "The name of the operation."
-          },
           "endpoint": {
             "type": "string",
             "description": "The path of the endpoint."
-          },
-          "method": {
-            "type": "string",
-            "description": "The HTTP method of the endpoint."
           },
           "query": {
             "type": "string",
             "description": "The query to execute."
           },
-          "queryParams": {
-            "type": "object",
-            "patternProperties": {
-              "\\w+": {
-                "type": "string",
-                "enum": [
-                  "string",
-                  "int",
-                  "bool"
-                ]
-              }
-            },
-            "description": "The query parameters."
-          },
           "handler": {
             "type": "string",
             "description": "The handler to execute."
-          },
-          "response": {
-            "type": "object",
-            "properties": {
-              "test": {
-                "type": "string"
-              }
-            },
-            "description": "The response json."
           }
         },
         "anyOf": [
@@ -124,9 +93,7 @@ func initBliss() {
           }
         ],
         "required": [
-          "name",
-          "endpoint",
-          "method"
+          "endpoint"
         ]
       }
     }
@@ -135,7 +102,14 @@ func initBliss() {
 `)
 	writer.WriteFile("queries.sql", `-- name: GetExample :one
 SELECT * FROM public.example
-WHERE name = $1 LIMIT 1;`)
+WHERE name = $1 OR id = $2 LIMIT 1;
+
+-- name: GetExamples :many
+SELECT * FROM public.example;
+
+-- name: CreateExample :exec
+INSERT INTO public.example ("name")
+VALUES ($1);`)
 	writer.WriteFile("sqlc.yaml", `version: "2"
 sql:
   - engine: "postgresql"

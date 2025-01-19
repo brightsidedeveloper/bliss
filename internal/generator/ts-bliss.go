@@ -50,9 +50,7 @@ export default class Bliss {`
 
 func getMethodsUsed(bliss parser.Bliss) map[string]bool {
 	methods := make(map[string]bool)
-	for _, op := range bliss.Operations {
-		methods[op.Method] = true
-	}
+	methods["Post"] = true
 	return methods
 }
 
@@ -95,47 +93,11 @@ import { `
 func genGets(bliss parser.Bliss) string {
 	goCode := ""
 
-	for _, op := range bliss.Operations {
-		if op.Method != "Get" {
-			continue
-		}
-		args := ""
-		params := ""
-		// if op.QueryParams != nil {
-		// 	args = `params: ` + op.Query + `Query`
-		// 	params = `, params as unknown as Record<string, unknown>`
-		// }
-		goCode += `
-	` + op.Query + `(` + args + `) {
-	return get<` + op.Query + `Res>('` + op.Endpoint + `'` + params + `)
-},`
-
-	}
-
 	return goCode
 }
 
 func genPosts(bliss parser.Bliss) string {
 	goCode := ""
-
-	for _, op := range bliss.Operations {
-		if op.Method != "Post" {
-			continue
-		}
-
-		args := ""
-		body := ""
-		// if op.Body != nil {
-		// 	args = `body: ` + op.Query + `Body`
-		// 	body = `, body as unknown as Record<string, unknown>`
-		// }
-
-		goCode += `
-	` + op.Query + `(` + args + `) {
-	return post<` + op.Query + `Res>('` + op.Endpoint + `'` + body + `)
-},`
-
-	}
 
 	return goCode
 }
@@ -143,71 +105,17 @@ func genPosts(bliss parser.Bliss) string {
 func genPuts(bliss parser.Bliss) string {
 	goCode := ""
 
-	for _, op := range bliss.Operations {
-		if op.Method != "Put" {
-			continue
-		}
-		args := ""
-		body := ""
-		// if op.Body != nil {
-		// 	args = `body: ` + op.Query + `Body`
-		// 	body = `, body as unknown as Record<string, unknown>`
-		// }
-
-		goCode += `
-	` + op.Query + `(` + args + `) {
-	return put<` + op.Query + `Res>('` + op.Endpoint + `'` + body + `)
-},`
-
-	}
-
 	return goCode
 }
 
 func genPatches(bliss parser.Bliss) string {
 	goCode := ""
 
-	for _, op := range bliss.Operations {
-		if op.Method != "Patch" {
-			continue
-		}
-		args := ""
-		body := ""
-		// if op.Body != nil {
-		// 	args = `body: ` + op.Query + `Body`
-		// 	body = `, body as unknown as Record<string, unknown>`
-		// }
-
-		goCode += `
-	` + op.Query + `(` + args + `) {
-	return patch<` + op.Query + `Res>('` + op.Endpoint + `'` + body + `)
-},`
-
-	}
-
 	return goCode
 }
 
 func genDeletes(bliss parser.Bliss) string {
 	goCode := ""
-
-	for _, op := range bliss.Operations {
-		if op.Method != "Delete" {
-			continue
-		}
-		args := ""
-		body := ""
-		// if op.Body != nil {
-		// 	args = `body: ` + op.Query + `Body`
-		// 	body = `, body as unknown as Record<string, unknown>`
-		// }
-
-		goCode += `
-	` + op.Query + `(` + args + `) {
-	return del<` + op.Query + `Res>('` + op.Endpoint + `'` + body + `)
-},`
-
-	}
 
 	return goCode
 }

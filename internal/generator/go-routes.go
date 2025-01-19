@@ -7,7 +7,6 @@ import (
 )
 
 func genMountRoutes(ops parser.Bliss, path string) error {
-
 	operationNames := make(map[string]int)
 	for _, op := range ops.Operations {
 		operationNames[op.Query]++
@@ -15,40 +14,36 @@ func genMountRoutes(ops parser.Bliss, path string) error {
 			return fmt.Errorf("operation query %s is duplicated", op.Query)
 		}
 	}
-	endpointMethods := make(map[string]map[string]int)
+
+	endpointPaths := make(map[string]int)
 	for _, op := range ops.Operations {
-		_, ok := endpointMethods[op.Method]
-		if ok {
-			endpointMethods[op.Method][op.Endpoint]++
-		} else {
-			endpointMethods[op.Method] = make(map[string]int)
-			endpointMethods[op.Method][op.Endpoint]++
-		}
-		if endpointMethods[op.Method][op.Endpoint] > 1 {
-			return fmt.Errorf("endpoint %s with method %s is duplicated", op.Endpoint, op.Method)
+		endpointPaths[op.Endpoint]++
+		if endpointPaths[op.Endpoint] > 1 {
+			return fmt.Errorf("endpoint %s is duplicated", op.Endpoint)
 		}
 	}
 
 	goCode := `package routes
 	
-	import (
+import (
 	"bliss-server/genesis/handler"
-
 	"github.com/go-chi/chi/v5"
 )
 
 func MountRoutes(r *chi.Mux, h *handler.Handler) {
-	`
+`
 	for _, op := range ops.Operations {
 		goCode += `
-		r.` + op.Method + `("` + op.Endpoint + `", h.` + op.Query + `)`
+	r.Post("` + op.Endpoint + `", h.` + op.Query + `)`
 	}
 	goCode += `
-
 }
-	`
+`
 
-	writer.WriteFile(path+"/routes/routes.go", goCode)
+	// Write the generated code to the specified file
+	if err := writer.WriteFile(path+"/routes/routes.go", goCode); err != nil {
+		return fmt.Errorf("failed to write routes file: %w", err)
+	}
 
 	return nil
 }

@@ -26,11 +26,7 @@ func genQuery(op parser.Operation, structParams map[string]map[string]string, si
 	goCode += `
 func (h *Handler) ` + op.Query + `(w http.ResponseWriter, r *http.Request) {`
 
-	if op.Method == "Get" {
-		goCode += generateQueryParams(op.Query, structParams, singleParams)
-	} else {
-		goCode += generateBody(op.Query, structParams, singleParams)
-	}
+	goCode += generateBody(op.Query, structParams, singleParams)
 
 	paramStr := genParamStr(op.Query, structParams, singleParams)
 
