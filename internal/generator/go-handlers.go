@@ -23,7 +23,7 @@ package handler
 import (
 	"context"
 	"net/http"
-	"solar-system/genesis/types"
+	"bliss-server/genesis/types"
 	`
 	if hasBody {
 		code += `"encoding/json"`
@@ -36,7 +36,7 @@ import (
 
 	if hasInjections {
 		code += `
-	"solar-system/genesis/injection"`
+	"bliss-server/genesis/injection"`
 
 	}
 

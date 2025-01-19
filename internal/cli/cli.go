@@ -34,7 +34,7 @@ func initBliss() {
 	writer.WriteFile("./config.bliss", `{
   "blissPath": "./api.bliss",
   "serverPath": "./app",
-  "webPath": "./clients/web"
+  "webPath": "./web"
 }
 `)
 	writer.WriteFile("./api.bliss", `{
@@ -54,6 +54,24 @@ func initBliss() {
     }
   ]
 }
+`)
+	writer.WriteFile("schemas.sql", `CREATE TABLE IF NOT EXISTS public.example (
+  id   SERIAL PRIMARY KEY,
+  name text      NOT NULL
+);`)
+	writer.WriteFile("queries.sql", `-- name: GetExample :one
+SELECT * FROM public.example
+WHERE name = $1 LIMIT 1;`)
+	writer.WriteFile("sqlc.yaml", `version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "queries.sql"
+    schema: "schemas.sql"
+    gen:
+      go:
+        package: "queries"
+        out: "./app/genesis/queries"
+        sql_package: "pgx/v5"
 `)
 }
 

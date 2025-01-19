@@ -21,7 +21,7 @@ type ` + op.Name + theType + ` struct {`
 		for k, t := range op.Res {
 
 			goCode += `
-	` + util.Capitalize(k) + ` ` + t + " `" + `json:"` + k + `"` + "`"
+	` + util.ConvertToCamelCase(k) + ` ` + t + " `" + `json:"` + k + `"` + "`"
 		}
 		goCode += `
 }
@@ -31,7 +31,7 @@ type ` + op.Name + theType + ` struct {`
 type ` + op.Name + `Query struct {`
 			for k, t := range op.QueryParams {
 				goCode += `
-	` + util.Capitalize(k) + ` ` + t + " `" + `json:"` + k + `"` + "`"
+	` + util.ConvertToCamelCase(k) + ` ` + t + " `" + `json:"` + k + `"` + "`"
 			}
 			goCode += `
 }
@@ -44,7 +44,7 @@ type ` + op.Name + `Query struct {`
 type ` + op.Name + `Body struct {`
 			for k, t := range op.Body {
 				goCode += `
-	` + util.Capitalize(k) + ` ` + t + " `" + `json:"` + k + `"` + "`"
+	` + util.ConvertToCamelCase(k) + ` ` + t + " `" + `json:"` + k + `"` + "`"
 			}
 			goCode += `
 }

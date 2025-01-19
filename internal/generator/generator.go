@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"fmt"
 	"master-gen/internal/parser"
 	"path"
 )
@@ -20,6 +21,9 @@ func (g *Generator) Generate() error {
 		return err
 	}
 	// Go
+	if err := genSqlc(); err != nil {
+		return fmt.Errorf("genSqlc: %w", err)
+	}
 	if err := genGoTypes(bliss, path.Join(g.ServerPath, "genesis")); err != nil {
 		return err
 	}
@@ -31,7 +35,6 @@ func (g *Generator) Generate() error {
 	}
 	// TS
 	if g.WebPath != "" {
-
 		if err := createWebIfNotExists(g.WebPath); err != nil {
 			return err
 		}
