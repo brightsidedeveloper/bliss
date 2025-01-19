@@ -55,17 +55,49 @@ func genParamStr(query string, structParams map[string]map[string]string, single
 	return ""
 }
 
+func isExecQuery(queryName string) bool {
+	file, err := os.Open("./queries.sql")
+	if err != nil {
+		return false
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+
+		if strings.HasPrefix(line, "-- name:") {
+			parts := strings.Fields(line)
+			if len(parts) >= 3 && parts[2] == queryName {
+				return parts[3] == ":exec"
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return false
+	}
+
+	return false
+}
+
 func generateQueryBinding(query, paramStr string) string {
+	insert := "res, err"
+	if isExecQuery(query) {
+		insert = `res := make(map[string]string)
+	err`
+	}
+
 	return fmt.Sprintf(`
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	res, err := h.Queries.%s(ctx%s)
+	%s := h.Queries.%s(ctx%s)
 	if err != nil {
 		h.JSON.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	`, query, paramStr)
+	`, insert, query, paramStr)
 }
 
 func generateQueryParams(query string, structParams map[string]map[string]string, singleParams map[string]string) string {
