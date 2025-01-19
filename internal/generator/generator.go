@@ -24,9 +24,6 @@ func (g *Generator) Generate() error {
 	if err := genSqlc(); err != nil {
 		return fmt.Errorf("genSqlc: %w", err)
 	}
-	if err := genGoTypes(bliss, path.Join(g.ServerPath, "genesis")); err != nil {
-		return err
-	}
 	if err := genHandlers(g, bliss, path.Join(g.ServerPath, "genesis")); err != nil {
 		return err
 	}
